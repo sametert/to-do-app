@@ -1,0 +1,76 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    background-image: url("/bg-wallpaper/pexels-tomasz-filipek-1637261.jpg");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+}
+
+.toDoList {
+    width: 50%;
+    height: 700px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.toDoList h2 {
+    font-size: 32px;
+    color: #5e5e5e;
+    margin: 0;
+}
+
+.toDoList p {
+    color: #5e5e5e;
+    margin: 0;
+}
+
+
+.toDoList .doIt {
+    margin-top: auto;
+} 
+
+.toDoList .doIt .inputToDo {
+    width: 100%;
+    height: 35px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 15px;
+    padding-left: 30px;
+    margin-bottom: 3px;
+    text-align: left;
+}
+
+.toDoList .doIt .inputToDo:hover {
+    background-color: #fff;
+}
+
+.input-icons i {
+    position: absolute;
+}
+
+.input-icons {
+    width: 100%;
+}
+
+.icon {
+    padding: 10px;
+    min-width: 40px;
+}
+  
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #000;
+    opacity: 1; /* Firefox */
+  }
