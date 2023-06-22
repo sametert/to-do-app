@@ -72,7 +72,7 @@ body {
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: #000;
     opacity: 1; /* Firefox */
-}
+} 
 
 
 .toDoList .item{
