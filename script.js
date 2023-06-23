@@ -47,24 +47,24 @@ const TaskController = (function(){
         setCurrentTask : function(obj){
             data.selectedTask = obj;
         },
-        updateTask : function(selectedInput) {
+        updateTask : function(selectedInput,value) {
             let newTask = null;
-
-            // console.log(id);
-            // if(data.selectedTask.id == id) {
-            //     console.log(selectedInput.value);
-            //     data.selectedTask.value = selectedInput.value;
-            // }
 
             data.tasks.forEach(function(task){
                 //aynı tr de olduğumuzu kontrol ettik
                 if(task.id == data.selectedTask.id) {
-                   task.value = selectedInput.value;
+                   task.value = value;
                    newTask = task;
                 }
             });
-
             return newTask;
+        },
+        deleteTask : function(selectedTask) {
+            data.tasks.forEach(function(element,index){
+                if(element.id == selectedTask.id) {
+                    data.tasks.splice(index,1);
+                }
+            });
         }
     }
 
@@ -79,7 +79,11 @@ const UIController = (function(){
         addTask : ".addTask",
         item : ".item",
         inputTask : ".inputTask",
-        edit : ".edit"   
+        edit : ".edit",
+        delete : ".delete",
+        cancel : ".cancel", 
+        checkBtn : ".check",
+        iTag : ".fa-sharp"
     }
 
     return {
@@ -89,8 +93,8 @@ const UIController = (function(){
         addTask : function(task) {
            let tag = `
            <div class="item" id="${task.id}">
-                <button class="check" type="button">
-                    <i class="fa-sharp fa-regular fa-circle"></i>
+                <button class="check btn" type="button">
+                    <i class="fa-sharp fa-regular fa-circle check"></i>
                 </button>
                 <input type="text" class="inputTask" value="${task.value}" disabled id="${task.id}">    
             </div>    
@@ -104,11 +108,13 @@ const UIController = (function(){
         showButons : function() {
             const selectedTask = TaskController.getData().selectedTask;
            
-            const tr = document.querySelectorAll(Selectors.item)
+            const tr = document.querySelectorAll(Selectors.item);
+            const addTask = document.querySelector(Selectors.addTask);
 
             tr.forEach(function(element){
                 if(element.getAttribute("id") == selectedTask.id) {
-                      if(!(element.querySelector(".butonController"))) {
+                    //addTask class'ının içindeki rowlara(trlere) sadece bir kez butonlar gösterilmeli.
+                    if(!(addTask.querySelector(".butonController"))) {
                         let butonShow = `
                             <div class="butonController">
                                 <button class="edit" type="button" id="${selectedTask.id}">
@@ -123,8 +129,8 @@ const UIController = (function(){
                             </div>        
                         `;
                         element.insertAdjacentHTML("beforeend",butonShow);
-                    };
-                    element.querySelector("input").disabled = false;
+                    } 
+                    element.querySelector("input").disabled = false;   
                 }
             });
         },
@@ -141,7 +147,41 @@ const UIController = (function(){
         },
         editState : function(state) {
             state.children[2].remove();
-        } 
+        },
+        deleteTask : function(item) {
+            item.remove();
+        },
+        cancelButon : function(butonCtrl,item) {
+            item.children[1].disabled = true;
+            butonCtrl.remove();
+        },
+        // checkCtrl : function(tag){
+        //     if(tag.classList.contains("btn")) {
+        //         tag.innerHTML = '<i class="fa-sharp fa-regular fa-circle-check"></i>';
+        //         const inputTag = tag.nextElementSibling;
+        //         inputTag.setAttribute("style","text-decoration:line-through;");
+        //     }else if(tag.classList.contains("fa-sharp")) {
+        //         console.log("hello")
+        //     }
+        //     // if(btn) {
+        //     //     btn.innerHTML = '<i class="fa-sharp fa-regular fa-circle-check"></i>';
+        //     //     const inputTag = btn.children[0];
+        //     //     inputTag.setAttribute("style","text-decoration:line-through;");
+        //     // }else if(i) {
+        //     //     i.setAttribute("class","fa-sharp fa-regular fa-circle-check");
+        //     //     const inputTag = btn.children[0];
+        //     //     inputTag.setAttribute("style","text-decoration:line-through;");
+        //     // }
+             
+            
+        // },
+        disabledCtrl : function(item) {
+            if(item.querySelector(".butonController")) {
+                item.children[1].disabled = false;
+            }else {
+                item.children[1].disabled = true;
+            }
+        }
     }
 
 })();
@@ -156,7 +196,7 @@ const Main = (function(Task,UI){
         document.getElementById(selector.form).addEventListener("submit", getTask);
 
         //show button
-        document.querySelector(selector.addTask).addEventListener("click",showButon);     
+        document.querySelector(selector.addTask).addEventListener("click",showButon);        
     }
 
     const getTask = (e)=> {
@@ -172,8 +212,26 @@ const Main = (function(Task,UI){
             UI.addTask(addTask);
 
             UI.clearInputs();
-        } 
+
+           
+            // document.querySelector(selector.addTask).addEventListener("click",checkButon);
+        }  
     }
+
+
+    //check button
+    // const checkButon = function(e) {
+    //     if(e.target.classList.contains("check")){
+    //         if(e.target.classList.contains("btn")) {
+    //             const btn = document.querySelector(selector.checkBtn);
+    //             UI.checkCtrl(btn);
+    //         }else if(e.target.classList.contains("fa-sharp")) {
+    //             const i = document.querySelector(selector.iTag);
+    //             UI.checkCtrl(i);
+    //         }
+            
+    //     }
+    // }
 
     const showButon = (e)=> {
         if(e.target.classList.contains("inputTask")) {
@@ -189,38 +247,63 @@ const Main = (function(Task,UI){
 
             //save changes buton
             document.querySelector(selector.edit).addEventListener("click",saveChanges);
+
+            //delete buton
+            document.querySelector(selector.delete).addEventListener("click",deleteButon);
+
+            //cancel button
+            document.querySelector(selector.cancel).addEventListener("click",cancelButon);
         }
     }
 
+   
+
     //save changes button
-    const saveChanges = function() {
-
-      
+    const saveChanges = function() {   
         const editBtn   = document.querySelector(selector.edit);
-        const editBtnId = editBtn.getAttribute("id");
-        const newInput  = editBtn.parentElement.parentElement.children[1];
-        // console.log(newInput);
 
-        const newObj = Task.updateTask(newInput);
+        //input text kısmı
+        const newInput  = editBtn.parentElement.parentElement.children[1];
+
+        //tr
+        const item = editBtn.parentElement.parentElement;
+
+        const newObj = Task.updateTask(newInput,newInput.value);
        
         const state = UI.updateTask(newObj);
        
         UI.editState(state);
+        UI.disabledCtrl(item);
+    }
+
+
+    //delete button
+    const deleteButon = function() {
+        const selectedTask = Task.getData().selectedTask;
+        Task.deleteTask(selectedTask);
+        
+        const item = document.querySelector(selector.delete).parentElement.parentElement;
+        UI.deleteTask(item);
+
+    }
+
+    //cancel button
+    const cancelButon = function() {
+        const butonController = document.querySelector(selector.cancel).parentElement;
+        const item = butonController.parentElement;
+        UI.cancelButon(butonController,item);
+    }
 
      
 
-
-
-        
-    }
+    
 
 
 
     return {
         init : function() {
             console.log("app starting...");
-            eventController();
-            
+            eventController();        
         }
     }
 
