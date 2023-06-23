@@ -1,5 +1,5 @@
 # to-do-app
 
-#Live
+# Live
 [You can find the live version](https://sametert.github.io/to-do-app/)
 
