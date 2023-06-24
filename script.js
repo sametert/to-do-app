@@ -93,8 +93,8 @@ const UIController = (function(){
         addTask : function(task) {
            let tag = `
            <div class="item" id="${task.id}">
-                <button class="check btn" type="button">
-                    <i class="fa-sharp fa-regular fa-circle check"></i>
+                <button class="chc" type="button" id="${task.id}">
+                    <i class="fa-sharp fa-regular fa-circle chc" id="${task.id}"></i>
                 </button>
                 <input type="text" class="inputTask" value="${task.value}" disabled id="${task.id}">    
             </div>    
@@ -155,26 +155,28 @@ const UIController = (function(){
             item.children[1].disabled = true;
             butonCtrl.remove();
         },
-        // checkCtrl : function(tag){
-        //     if(tag.classList.contains("btn")) {
-        //         tag.innerHTML = '<i class="fa-sharp fa-regular fa-circle-check"></i>';
-        //         const inputTag = tag.nextElementSibling;
-        //         inputTag.setAttribute("style","text-decoration:line-through;");
-        //     }else if(tag.classList.contains("fa-sharp")) {
-        //         console.log("hello")
-        //     }
-        //     // if(btn) {
-        //     //     btn.innerHTML = '<i class="fa-sharp fa-regular fa-circle-check"></i>';
-        //     //     const inputTag = btn.children[0];
-        //     //     inputTag.setAttribute("style","text-decoration:line-through;");
-        //     // }else if(i) {
-        //     //     i.setAttribute("class","fa-sharp fa-regular fa-circle-check");
-        //     //     const inputTag = btn.children[0];
-        //     //     inputTag.setAttribute("style","text-decoration:line-through;");
-        //     // }
-             
-            
-        // },
+        checkCtrl : function(tag,items){
+            items.forEach(function(item){
+                if(item.getAttribute("id") == tag.getAttribute("id")) {
+                    if(!(item.children[0].classList.contains("ekle"))) {
+                        //add
+                        item.children[0].classList.add("ekle");
+                        item.children[0].children[0].setAttribute("class","fa-sharp fa-regular fa-circle-check chc");
+                        
+                        const inputTag = item.children[1];
+                        inputTag.setAttribute("style","text-decoration:line-through;");  
+
+                    }else if(item.children[0].classList.contains("ekle")) {
+                        //eski hal
+                        item.children[0].classList.remove("ekle");
+                        item.children[0].children[0].setAttribute("class","fa-sharp fa-regular fa-circle chc"); 
+
+                        const inputTag = item.children[1];
+                        inputTag.setAttribute("style","text-decoration:none;");
+                    }                 
+                }
+            })  
+        },
         disabledCtrl : function(item) {
             if(item.querySelector(".butonController")) {
                 item.children[1].disabled = false;
@@ -213,25 +215,20 @@ const Main = (function(Task,UI){
 
             UI.clearInputs();
 
-           
-            // document.querySelector(selector.addTask).addEventListener("click",checkButon);
+            document.querySelector(selector.addTask).addEventListener("click",checkButon);
         }  
     }
 
 
     //check button
-    // const checkButon = function(e) {
-    //     if(e.target.classList.contains("check")){
-    //         if(e.target.classList.contains("btn")) {
-    //             const btn = document.querySelector(selector.checkBtn);
-    //             UI.checkCtrl(btn);
-    //         }else if(e.target.classList.contains("fa-sharp")) {
-    //             const i = document.querySelector(selector.iTag);
-    //             UI.checkCtrl(i);
-    //         }
-            
-    //     }
-    // }
+    const checkButon = function(e) {
+        if(e.target.classList.contains("chc")){
+            const tag  = e.target;
+            const items = document.querySelectorAll(selector.item);
+         
+            UI.checkCtrl(tag,items);
+        }
+    }
 
     const showButon = (e)=> {
         if(e.target.classList.contains("inputTask")) {
@@ -243,16 +240,25 @@ const Main = (function(Task,UI){
             //set current task
             Task.setCurrentTask(task);
 
-            UI.showButons();
+            const items = document.querySelectorAll(selector.item);
 
-            //save changes buton
-            document.querySelector(selector.edit).addEventListener("click",saveChanges);
 
-            //delete buton
-            document.querySelector(selector.delete).addEventListener("click",deleteButon);
-
-            //cancel button
-            document.querySelector(selector.cancel).addEventListener("click",cancelButon);
+            items.forEach(function(item){
+                if(item.getAttribute("id") == id) {
+                    if(!(item.children[0].classList.contains("ekle"))) {
+                        UI.showButons();
+        
+                        //save changes buton
+                        document.querySelector(selector.edit).addEventListener("click",saveChanges);
+        
+                        //delete buton
+                        document.querySelector(selector.delete).addEventListener("click",deleteButon);
+        
+                        //cancel button
+                        document.querySelector(selector.cancel).addEventListener("click",cancelButon);
+                    }
+                }
+            })   
         }
     }
 
@@ -293,12 +299,6 @@ const Main = (function(Task,UI){
         const item = butonController.parentElement;
         UI.cancelButon(butonController,item);
     }
-
-     
-
-    
-
-
 
     return {
         init : function() {
